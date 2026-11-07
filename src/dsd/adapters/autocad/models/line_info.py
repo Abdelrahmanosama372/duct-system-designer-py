@@ -1,4 +1,5 @@
 """A source line and its string XData metadata."""
+
 from dataclasses import dataclass, field
 
 from dsd.geometry.primitives.line import Line

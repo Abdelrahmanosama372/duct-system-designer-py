@@ -23,10 +23,16 @@ def test_default_connection_attaches_without_starting_autocad(monkeypatch):
 
 def test_from_yaml_and_multiple_system_discovery():
     connection = Mock()
+
     def root(name):
-        return SimpleNamespace(Layer="duct-network", ObjectName="AcDbLine",
-            StartPoint=(0, 0, 0), EndPoint=(1, 1, 0),
-            GetXData=Mock(return_value=([1000], [f"system-name={name}"])))
+        return SimpleNamespace(
+            Layer="duct-network",
+            ObjectName="AcDbLine",
+            StartPoint=(0, 0, 0),
+            EndPoint=(1, 1, 0),
+            GetXData=Mock(return_value=([1000], [f"system-name={name}"])),
+        )
+
     connection.iter_objects.return_value = [root("A"), root("B")]
     subject = AutoCad.from_yaml("examples/dsd_config.yaml", connection)
     assert subject.system_roots == {"A": 0, "B": 1}

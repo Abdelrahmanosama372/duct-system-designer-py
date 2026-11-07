@@ -8,15 +8,22 @@ from dsd.adapters.autocad import AutoCadReader, ReaderConfig
 
 def line(*entries, layer="input", kind="AcDbLine"):
     return SimpleNamespace(
-        Layer=layer, ObjectName=kind, StartPoint=(1, 2, 3), EndPoint=(4, 5, 6),
+        Layer=layer,
+        ObjectName=kind,
+        StartPoint=(1, 2, 3),
+        EndPoint=(4, 5, 6),
         GetXData=Mock(return_value=([1001] + [1000] * len(entries), ["DSD", *entries])),
     )
 
 
 def block(name="DIFFUSER", layer="input"):
     return SimpleNamespace(
-        Layer=layer, ObjectName="AcDbBlockReference", Name="*U123", EffectiveName=name,
-        InsertionPoint=(10, 20, 0), GetXData=Mock(return_value=(None, None)),
+        Layer=layer,
+        ObjectName="AcDbBlockReference",
+        Name="*U123",
+        EffectiveName=name,
+        InsertionPoint=(10, 20, 0),
+        GetXData=Mock(return_value=(None, None)),
     )
 
 
@@ -27,9 +34,16 @@ def reader(entities):
 
 
 def test_filters_model_space_and_assigns_root_ids_first():
-    entities = [line("flow=100"), block(), line("system-name=Supply"),
-                line("system-name=Return"), line(layer="other"),
-                line(kind="AcDbPolyline"), block("UNKNOWN"), block(layer="other")]
+    entities = [
+        line("flow=100"),
+        block(),
+        line("system-name=Supply"),
+        line("system-name=Return"),
+        line(layer="other"),
+        line(kind="AcDbPolyline"),
+        block("UNKNOWN"),
+        block(layer="other"),
+    ]
     subject = reader(entities)
     blocks = subject.read_duct_network_blocks()
     lines = subject.read_duct_network_lines()
@@ -51,15 +65,19 @@ def test_metadata_only_accepts_key_value_strings():
         ["DSD", "bad", "flow=100", "expression=a=b", 42, "=empty", "flow=200", 9],
     )
     assert reader([entity]).read_duct_network_lines()[0].metadata == {
-        "flow": "200", "expression": "a=b",
+        "flow": "200",
+        "expression": "a=b",
     }
 
 
-@pytest.mark.parametrize("entities", [
-    [line("system-name=A"), line("system-name=A")],
-    [line("system-name=A", "system-name=B")],
-    [line("system-name=")],
-])
+@pytest.mark.parametrize(
+    "entities",
+    [
+        [line("system-name=A"), line("system-name=A")],
+        [line("system-name=A", "system-name=B")],
+        [line("system-name=")],
+    ],
+)
 def test_rejects_invalid_system_names(entities):
     with pytest.raises(ValueError, match="system-name"):
         reader(entities).read_duct_network_lines()

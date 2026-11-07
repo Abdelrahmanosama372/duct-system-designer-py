@@ -5,7 +5,7 @@ from unittest.mock import Mock
 import pytest
 
 from dsd.adapters.autocad import AutoCadWriter, WriterConfig
-from dsd.geometry.primitives import Arc, Circle, Line, Point, Rectangle, PrimitiveStyle
+from dsd.geometry.primitives import Arc, Circle, Line, Point, PrimitiveStyle, Rectangle
 
 
 def writer(layers=("output",)):
@@ -16,7 +16,9 @@ def writer(layers=("output",)):
 
 def test_line_uses_explicit_layer_and_preserves_coordinates():
     subject = writer()
-    primitive = Line(Point(1, 2, 3), Point(4, 5, 6), style=PrimitiveStyle(layer="ignored"))
+    primitive = Line(
+        Point(1, 2, 3), Point(4, 5, 6), style=PrimitiveStyle(layer="ignored")
+    )
     subject.write_primitive(primitive, "output")
     args = subject.autocad.model.AddLine.call_args.args
     assert list(args[0]) == [1, 2, 3]
@@ -31,8 +33,10 @@ def test_rectangle_is_four_lines():
     subject.write_primitive(Rectangle.from_bounds(Point(0, 0), Point(10, 20)), "output")
     calls = subject.autocad.model.AddLine.call_args_list
     assert [(list(c.args[0]), list(c.args[1])) for c in calls] == [
-        ([0, 0, 0], [10, 0, 0]), ([10, 0, 0], [10, 20, 0]),
-        ([10, 20, 0], [0, 20, 0]), ([0, 20, 0], [0, 0, 0]),
+        ([0, 0, 0], [10, 0, 0]),
+        ([10, 0, 0], [10, 20, 0]),
+        ([10, 20, 0], [0, 20, 0]),
+        ([0, 20, 0], [0, 0, 0]),
     ]
     assert all(entity.Layer == "output" for entity in entities)
     subject.autocad.model.AddPolyline.assert_not_called()
@@ -47,7 +51,9 @@ def test_circle():
     assert subject.autocad.model.AddCircle.return_value.Layer == "output"
 
 
-@pytest.mark.parametrize("sweep, expected", [(pi / 2, (0, pi / 2)), (-pi / 2, (-pi / 2, 0))])
+@pytest.mark.parametrize(
+    "sweep, expected", [(pi / 2, (0, pi / 2)), (-pi / 2, (-pi / 2, 0))]
+)
 def test_arc_radians_and_direction(sweep, expected):
     subject = writer()
     subject.write_primitive(Arc(Point(10, 0), Point(0, 0), sweep), "output")
@@ -68,11 +74,14 @@ def test_text():
     assert subject.autocad.model.AddText.return_value.Layer == "output"
 
 
-@pytest.mark.parametrize("operation", [
-    lambda w: w.write_primitive(Line(Point(0, 0), Point(1, 1)), "missing"),
-    lambda w: w.write_text("test", Point(0, 0), 10, "missing"),
-    lambda w: w.clear_output_layers(),
-])
+@pytest.mark.parametrize(
+    "operation",
+    [
+        lambda w: w.write_primitive(Line(Point(0, 0), Point(1, 1)), "missing"),
+        lambda w: w.write_text("test", Point(0, 0), 10, "missing"),
+        lambda w: w.clear_output_layers(),
+    ],
+)
 def test_missing_layer_raises_without_mutation(operation):
     subject = writer(layers=())
     with pytest.raises(ValueError, match="does not exist"):
@@ -82,16 +91,30 @@ def test_missing_layer_raises_without_mutation(operation):
 
 def test_clear_deletes_only_configured_layers_across_layouts():
     subject = writer()
-    output, paper, keep = Mock(Layer="output"), Mock(Layer="OUTPUT"), Mock(Layer="input")
-    subject.autocad.doc.Layouts = [SimpleNamespace(Block=[output, keep]), SimpleNamespace(Block=[paper])]
+    output, paper, keep = (
+        Mock(Layer="output"),
+        Mock(Layer="OUTPUT"),
+        Mock(Layer="input"),
+    )
+    subject.autocad.doc.Layouts = [
+        SimpleNamespace(Block=[output, keep]),
+        SimpleNamespace(Block=[paper]),
+    ]
     subject.clear_output_layers()
     output.Delete.assert_called_once_with()
     paper.Delete.assert_called_once_with()
     keep.Delete.assert_not_called()
 
 
-@pytest.mark.parametrize("primitive", [Circle(Point(0, 0), 0), Arc(Point(0, 0), Point(0, 0), 1),
-    Arc(Point(1, 0), Point(0, 0), 0), Arc(Point(1, 0), Point(0, 0), 2 * pi)])
+@pytest.mark.parametrize(
+    "primitive",
+    [
+        Circle(Point(0, 0), 0),
+        Arc(Point(0, 0), Point(0, 0), 1),
+        Arc(Point(1, 0), Point(0, 0), 0),
+        Arc(Point(1, 0), Point(0, 0), 2 * pi),
+    ],
+)
 def test_invalid_geometry_is_rejected(primitive):
     subject = writer()
     with pytest.raises(ValueError):
@@ -99,7 +122,10 @@ def test_invalid_geometry_is_rejected(primitive):
     assert subject.autocad.model.mock_calls == []
 
 
-@pytest.mark.parametrize("text,height,rotation", [("a\nb", 10, 0), ("test", 0, 0), ("test", 10, float("nan"))])
+@pytest.mark.parametrize(
+    "text,height,rotation",
+    [("a\nb", 10, 0), ("test", 0, 0), ("test", 10, float("nan"))],
+)
 def test_invalid_text_is_rejected(text, height, rotation):
     subject = writer()
     with pytest.raises(ValueError):

@@ -1,4 +1,5 @@
 """Configuration for explicit output-layer cleanup."""
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping

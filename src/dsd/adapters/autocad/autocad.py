@@ -1,4 +1,5 @@
 """One shared pyautocad connection for a reader and writer."""
+
 from pathlib import Path
 from typing import Any
 
@@ -12,7 +13,9 @@ from .writer_config import WriterConfig
 
 class AutoCad:
     def __init__(
-        self, reader_config: ReaderConfig, writer_config: WriterConfig,
+        self,
+        reader_config: ReaderConfig,
+        writer_config: WriterConfig,
         connection: Any = None,
     ) -> None:
         if connection is None:

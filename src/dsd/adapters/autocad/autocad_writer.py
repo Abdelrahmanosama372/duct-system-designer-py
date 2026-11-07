@@ -1,4 +1,5 @@
 """Write primitives to existing layers in the active drawing."""
+
 from array import array
 from math import atan2, hypot, isfinite, tau
 from typing import Any
@@ -31,7 +32,9 @@ class AutoCadWriter:
         self._require_layer(layer_name)
         model = self.autocad.model
         if isinstance(primitive, Line):
-            entities = [model.AddLine(self._point(primitive.start), self._point(primitive.end))]
+            entities = [
+                model.AddLine(self._point(primitive.start), self._point(primitive.end))
+            ]
         elif isinstance(primitive, Rectangle):
             entities = [
                 model.AddLine(self._point(edge.start), self._point(edge.end))
@@ -40,14 +43,23 @@ class AutoCadWriter:
         elif isinstance(primitive, Circle):
             if not isfinite(primitive.radius) or primitive.radius <= 0:
                 raise ValueError("Circle radius must be positive and finite")
-            entities = [model.AddCircle(self._point(primitive.center), primitive.radius)]
+            entities = [
+                model.AddCircle(self._point(primitive.center), primitive.radius)
+            ]
         elif isinstance(primitive, Arc):
             dx = primitive.start.x - primitive.center.x
             dy = primitive.start.y - primitive.center.y
             radius = hypot(dx, dy)
             sweep = primitive.angle
-            if not isfinite(radius) or radius <= 0 or not isfinite(sweep) or not 0 < abs(sweep) < tau:
-                raise ValueError("Arc requires a positive radius and a sweep between -2π and 2π, excluding zero")
+            if (
+                not isfinite(radius)
+                or radius <= 0
+                or not isfinite(sweep)
+                or not 0 < abs(sweep) < tau
+            ):
+                raise ValueError(
+                    "Arc requires a positive radius and a sweep between -2π and 2π, excluding zero"
+                )
             start = atan2(dy, dx)
             end = start + sweep
             if sweep < 0:
@@ -59,7 +71,11 @@ class AutoCadWriter:
             entity.Layer = layer_name
 
     def write_text(
-        self, text: str, position: Point, height: float, layer_name: str,
+        self,
+        text: str,
+        position: Point,
+        height: float,
+        layer_name: str,
         rotation: float = 0.0,
     ) -> None:
         self._require_layer(layer_name)

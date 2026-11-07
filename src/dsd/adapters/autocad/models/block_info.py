@@ -1,4 +1,5 @@
 """A source block and its string XData metadata."""
+
 from dataclasses import dataclass, field
 
 from dsd.geometry.primitives.block import Block

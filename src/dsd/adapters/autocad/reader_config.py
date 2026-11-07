@@ -1,4 +1,5 @@
 """Configuration for reading a DSD network from Model Space."""
+
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping
