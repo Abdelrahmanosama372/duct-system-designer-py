@@ -1,5 +1,6 @@
 # Duct System Designer (DSD)
 
+>[!WARNING]
 > **No longer maintained — this repository will be archived.**
 >
 > Development has moved to C++. The requirements evolved to need responsive,
