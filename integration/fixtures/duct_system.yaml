@@ -1,0 +1,33 @@
+# Fixed integration-test inputs; deliberately independent of editable app defaults.
+autocad:
+  input:
+    line_network_layer:
+      name: duct-network
+    xdata:
+      application_name: DSD
+    air_terminal_blocks: [DIFFUSER]
+  output:
+    clear:
+      include: [duct-output]
+ductsystem:
+  material: GalvanizedSteel
+  pressure_level: lowpressure
+  fittings:
+    takeoff_length: 150
+    reducer_length: 300
+    elbow_inside_radius_ratio: 1.5
+sizing:
+  size_increment: 25
+  minimum_duct_dimension: 25
+  maximum_duct_dimension: 2000
+  aspect_ratio: 2
+  required_velocity: 1000  # FPM
+  required_head_loss: 0.1  # in. w.g./100 ft
+  air:
+    density_kg_m3: 1.1180887435024176
+    dynamic_viscosity_pa_s: 0.000018891414505869057
+    roughness_mm: 0.213
+  diameter_tolerance_mm: 0.0001
+  max_iterations: 30
+  friction_tolerance: 0.0000000001
+  friction_max_iterations: 80

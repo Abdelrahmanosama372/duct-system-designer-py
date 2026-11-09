@@ -1,0 +1,10 @@
+*.egg-info/
+.venv
+__pycache__/
+*.pyc
+issues.txt
+**/__pycache__
+.pytest_cache
+prompt.md
+//design.md
+

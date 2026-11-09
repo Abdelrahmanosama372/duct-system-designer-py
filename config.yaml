@@ -1,0 +1,41 @@
+# Coordinates and text heights are in millimetres; angles are in radians.
+# Create input and output layers in AutoCAD before running DSD.
+autocad:
+  input:
+    line_network_layer:
+      name: "duct-network"
+    xdata:
+      application_name: "DSD"
+    air_terminal_blocks:
+      - "SUPPLY-DIFFUSER"
+      - "RETURN-GRILLE"
+  output:
+    clear:
+      include:
+        - "duct-output"
+        - "duct-annotations"
+
+ductsystem:
+  material: "GalvanizedSteel"
+  pressure_level: "lowpressure"
+  fittings:
+    takeoff_length: 150  # mm; bevel opening = child width + length
+    reducer_length: 300  # mm
+    elbow_inside_radius_ratio: 1.5  # inside R = ratio * W
+
+# Illustrative sizing settings; adjust targets and air properties for the project.
+sizing:
+  size_increment: 25  # mm
+  minimum_duct_dimension: 100  # mm
+  maximum_duct_dimension: 2000  # mm
+  aspect_ratio: 2.0  # accept width / height <= this value
+  required_velocity: 1000  # FPM
+  required_head_loss: 0.1  # in. w.g./100 ft
+  air:
+    density_kg_m3: 1.1180887435024176
+    dynamic_viscosity_pa_s: 0.000018891414505869057
+    roughness_mm: 0.15
+  diameter_tolerance_mm: 0.0001
+  max_iterations: 30
+  friction_tolerance: 0.0000000001
+  friction_max_iterations: 80

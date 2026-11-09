@@ -114,3 +114,20 @@ def test_block_name_falls_back_to_name():
     entity.Name = "diffuser"
     entity.Layer = "INPUT"
     assert len(reader([entity]).read_duct_network_blocks()) == 1
+
+
+def test_read_returns_all_entities_and_root_objects_without_interpreting_membership():
+    subject = reader([line(), line("system-name=A"), line("system-name=B"), block()])
+    result = subject.read()
+    assert len(result.lines) == 3
+    assert len(result.blocks) == 1
+    assert len(result.roots) == 2
+    assert result.roots[0] is result.lines[0]
+    assert result.roots[1] is result.lines[1]
+    assert result.lines[2].metadata == {}
+    assert subject.read().lines[0] is result.lines[0]
+
+
+def test_system_type_xdata_is_preserved_on_root():
+    result = reader([line("system-name=Supply", "system-type=supply")]).read()
+    assert result.roots[0].metadata["system-type"] == "supply"

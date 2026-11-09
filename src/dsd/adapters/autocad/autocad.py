@@ -1,14 +1,15 @@
 """One shared pyautocad connection for a reader and writer."""
 
 from pathlib import Path
-from typing import Any
-
-import yaml
+from typing import TYPE_CHECKING, Any
 
 from .autocad_reader import AutoCadReader
 from .autocad_writer import AutoCadWriter
 from .reader_config import ReaderConfig
 from .writer_config import WriterConfig
+
+if TYPE_CHECKING:
+    from dsd.analyzers.models import SystemTopology
 
 
 class AutoCad:
@@ -32,10 +33,17 @@ class AutoCad:
         self.reader.read_duct_network_lines()
         return dict(self.reader.system_roots)
 
+    def analyze_systems(self) -> list["SystemTopology"]:
+        """Analyze each registered root against one complete CAD snapshot."""
+        from dsd.analyzers.topology_analyzer import TopologyAnalyzer
+
+        autocad_input = self.reader.read()
+        analyzer = TopologyAnalyzer(autocad_input)
+        return [analyzer.analyze(root) for root in autocad_input.roots]
+
     @classmethod
     def from_yaml(cls, path: str | Path, connection: Any = None) -> "AutoCad":
-        with Path(path).open(encoding="utf-8") as stream:
-            data = yaml.safe_load(stream)
-        return cls(
-            ReaderConfig.from_mapping(data), WriterConfig.from_mapping(data), connection
-        )
+        from dsd.config_builder import ConfigBuilder
+
+        config = ConfigBuilder(path).build()
+        return cls(config.reader, config.writer, connection)

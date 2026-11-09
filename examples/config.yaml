@@ -1,0 +1,114 @@
+firefighting:
+  hazard_level: "light"
+  steel:
+    material: "seamless"
+    schedule: "40"
+    specs: "ASTM"
+    connnection_type: 
+      "1": "Threaded"
+      "1.25": "Threaded"
+      "1.5": "Threaded"
+      "2": "Threaded"
+      "2.5": "Welded"
+      "3": "Welded"
+      "4": "Welded"
+      "6": "Welded"
+
+preproessing:
+  root_flow_route: "continuation"
+
+processing:
+  compute_pipe_dimensions: true
+  layer_name_to_pipe_diameter:
+    fire_cabints: "4"
+  hangers:
+    multiplier: 1.0
+  short_transition_edges:
+    enabled: true
+    max_length_mm: 300
+
+geometry:
+  placement:
+    reducer_offset: 150
+  welded_connection:
+    enabled: true
+    min_main_pipe_diameter: "2"
+
+autocad:
+  input:
+    drawing:
+      units: "m"
+    xdata:
+      application_name: "FIREPLANNER"
+      fields:
+        elevation: "cop"
+    root_line_identifier: 
+      color: "red"
+    line_network_layer:
+      name: "line-network"
+    sprinkler_blocks:
+      SPR:
+        temperature: 68
+        k_factor: 5.6 
+  output:
+    clear:
+      enabled: true
+      include:
+        - "ff-sprinklers"
+        - "ff-sprinklers-thin"
+        - "ff-hangers"
+        - "ff-annotations"
+        - "ff-dimensions"
+    network:
+      layers:
+        line:
+          name: "ff-sprinklers"
+          properties:
+            color: "green"
+            line_weight: 0.13
+        centerline:
+          enabled: true
+          name: "ff-sprinklers-thin"
+          properties:
+            color: "gray"
+            line_weight: 0.05
+    dimensions:
+      enabled: true
+      unit: "m"
+      layer:
+        name: "ff-dimensions"
+      offset_mm: 500
+      min_length_mm: 1000
+      style:
+        name: "FIRE_DIM"
+    annotations:
+      text_height: 125
+      layer:
+        name: "ff-annotations"
+        properties:
+          color: "white"
+      pipe_labels:
+        diameter_offset_mm: 200
+        cop_offset_mm: 350
+        cop:
+          enabled: true
+          unit: "m"
+        pipe_dimension:
+          enabled: true
+    hangers:
+      layer:
+        name: "ff-hangers"
+        properties:
+          color: "yellow"
+boq:
+  full_ceiling_elevation: 4500
+  output:
+    excel:
+      enabled: true
+      path: "boq_report.xlsx"
+    console:
+      enabled: true
+  paint:
+    thickness: 140
+    scrap_precentage: 0.4
+    volume_solids_precentage: 0.75

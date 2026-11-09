@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dsd"
+version = "0.1.0"
+description = "An HVAC ductwork design automation tool"
+dependencies = [
+    "pyautocad",
+    "numpy",
+    "openpyxl",
+    "PyYAML",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-mock", 
+]
+
+[project.scripts]
+autocad-fire-planner = "dsd.adaptors.autocad.main:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+minversion = "7.0"
+addopts = ["-ra"]
+testpaths = [
+    "tests",
+    "integration",
+]
+
+[tool.basedpyright]
+venvPath = "."
+venv = ".venv"
+typeCheckingMode = "strict"
+reportImplicitAbstractClass = "error"
+executionEnvironments = [
+  { root = ".", extraPaths = ["src"] },
+]
+
+[tool.black]
+line-length = 88

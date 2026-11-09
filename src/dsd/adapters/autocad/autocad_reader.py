@@ -4,6 +4,7 @@ from typing import Any
 
 from dsd.geometry.primitives import Block, Line, Point
 
+from .models.autocad_input import AutoCadInput
 from .models.block_info import BlockInfo
 from .models.line_info import LineInfo
 from .reader_config import ReaderConfig
@@ -86,3 +87,12 @@ class AutoCadReader:
         if self._blocks is None:
             self.refresh()
         return list(self._blocks or [])
+
+    def read(self) -> AutoCadInput:
+        """Return the complete snapshot; connectivity belongs to the analyzer."""
+        lines = self.read_duct_network_lines()
+        return AutoCadInput(
+            lines=lines,
+            blocks=self.read_duct_network_blocks(),
+            roots=[line for line in lines if "system-name" in line.metadata],
+        )
